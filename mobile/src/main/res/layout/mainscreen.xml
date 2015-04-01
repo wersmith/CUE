@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context=".MainScreenActivity"
+    tools:ignore="MergeRootFrame">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:textSize="40sp"
+        android:layout_centerHorizontal="true"
+        android:text="CUE Dashboard"
+        android:textColor="#d11e2529"
+        android:id="@+id/textView5" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/refresh"
+        android:layout_marginLeft="75dp"
+        android:layout_marginTop="40dp"
+        android:maxWidth="25dp"
+        android:maxHeight="25dp"
+        android:id="@+id/refresh" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/address_bg"
+        android:layout_centerHorizontal="true"
+        android:text="Loading..."
+        android:paddingLeft="180dp"
+        android:paddingTop="60dp"
+        android:layout_marginTop="125dp"
+        android:textSize="25sp"
+        android:id="@+id/addressTextDisplay"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/house_icon"
+        android:layout_alignTop="@+id/addressTextDisplay"
+        android:layout_alignLeft="@+id/addressTextDisplay"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
+        android:maxWidth="75dp"
+        android:maxHeight="75dp"
+        android:id="@+id/imageView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/appliance_1"
+        android:layout_below="@+id/addressTextDisplay"
+        android:layout_alignLeft="@+id/addressTextDisplay"
+        android:layout_marginTop="50dp"
+        android:textSize="20sp"
+        android:width="220dp"
+        android:height="200dp"
+        android:background="#ff02a5c2"
+        android:textColor="#ffffff"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:text="Loading..."
+        android:longClickable="true"
+        android:onClick="wearableNotification()"
+        android:password="false" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/appliance_2"
+        android:layout_below="@+id/addressTextDisplay"
+        android:layout_alignRight="@+id/addressTextDisplay"
+        android:layout_marginTop="50dp"
+        android:textSize="20sp"
+        android:width="220dp"
+        android:height="200dp"
+        android:background="#ff02a5c2"
+        android:textColor="#ffffff"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:text="Loading..."/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/add_new_appliance"
+        android:layout_alignTop="@+id/appliance_2"
+        android:layout_marginLeft="100dp"
+        android:layout_marginTop="250dp"
+        android:maxWidth="100dp"
+        android:maxHeight="100dp"
+        android:id="@+id/new_appliance" />
+
+</RelativeLayout>
