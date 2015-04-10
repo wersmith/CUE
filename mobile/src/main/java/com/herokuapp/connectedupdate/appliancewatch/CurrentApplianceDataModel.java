@@ -11,8 +11,8 @@ public class CurrentApplianceDataModel {
     private String mRoomName;
     private String mApplianceName;
     private String mApplianceTimeLapse;
-    private String mApplianceStartTime;
-    private String mApplianceEndTime;
+    private String mApplianceTime;
+    private String mApplianceState;
     private int mInputId;
 
     public int getInputId() {
@@ -23,20 +23,20 @@ public class CurrentApplianceDataModel {
         mInputId = inputId;
     }
 
-    public String getApplianceStartTime() {
-        return mApplianceStartTime;
+    public String getApplianceTime() {
+        return mApplianceTime;
     }
 
-    public void setApplianceStartTime(String applianceStartTime) {
-        mApplianceStartTime = applianceStartTime;
+    public void setApplianceTime(String applianceStartTime) {
+        mApplianceTime = applianceStartTime;
     }
 
-    public String getApplianceEndTime() {
-        return mApplianceEndTime;
+    public String getApplianceState() {
+        return mApplianceState;
     }
 
-    public void setApplianceEndTime(String applianceEndTime) {
-        mApplianceEndTime = applianceEndTime;
+    public void setApplianceState(String applianceEndTime) {
+        mApplianceState = applianceEndTime;
     }
 
     public int getSessionID() {

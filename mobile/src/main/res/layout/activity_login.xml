@@ -10,7 +10,7 @@
         android:width="200dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="225dp" />
+        android:layout_marginTop="300dp" />
 
 
     <EditText
@@ -68,17 +68,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="CUE"
+        android:text=""
         android:id="@+id/textView3"
         android:layout_marginTop="100dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:textColor="#FFFFFF"
-        android:background="@drawable/background_circle"
+        android:background="@mipmap/alert"
         android:height="100dp"
         android:width="100dp"
         android:paddingTop="35dp"
         android:paddingLeft="30dp"
-        android:textStyle="bold"
-/>
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CUE"
+        android:textSize="30sp"
+        android:layout_below="@+id/textView3"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

@@ -13,14 +13,15 @@
         android:layout_centerHorizontal="true"
         android:text="CUE Dashboard"
         android:textColor="#d11e2529"
-        android:id="@+id/textView5" />
+        android:id="@+id/textTitleText" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@mipmap/refresh"
-        android:layout_marginLeft="75dp"
+        android:layout_marginLeft="-80dp"
         android:layout_marginTop="40dp"
+        android:layout_alignLeft="@+id/textTitleText"
         android:maxWidth="25dp"
         android:maxHeight="25dp"
         android:id="@+id/refresh" />
@@ -91,7 +92,8 @@
         android:layout_height="wrap_content"
         android:background="@mipmap/add_new_appliance"
         android:layout_alignTop="@+id/appliance_2"
-        android:layout_marginLeft="100dp"
+        android:layout_alignLeft="@+id/appliance_1"
+        android:layout_marginLeft="60dp"
         android:layout_marginTop="250dp"
         android:maxWidth="100dp"
         android:maxHeight="100dp"
