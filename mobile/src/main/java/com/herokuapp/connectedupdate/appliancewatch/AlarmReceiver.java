@@ -14,16 +14,20 @@ import android.widget.Toast;
  */
 public class AlarmReceiver extends BroadcastReceiver{
 
+    public UserDataModel userData = new UserDataModel();
+
     @Override
     public void onReceive(Context context, Intent intent) {
+        String username = intent.getStringExtra("username");
+        String password = intent.getStringExtra("password");
 
-        String action = intent.getAction();
-        System.out.println("Broadcast received" + action);
+        userData.setPassword(password);
+        userData.setUsername(username);
 
-        //recieved the user data for future action to the dashboard
-        Bundle userDataBundle = intent.getExtras().getBundle("userData");
-        final UserDataModel userData =  userDataBundle.getParcelable("UserModel");
-        System.out.println("Main Screen:  " + userData.getUsername() + userData.getPassword());
+        System.out.println("Broadcast received" + username + password);
+
+
+
 
         //When the alarm goes off, here is the a message gets posted to the
         //notification and watch
@@ -32,6 +36,7 @@ public class AlarmReceiver extends BroadcastReceiver{
 
 
     }
+
 
 
 

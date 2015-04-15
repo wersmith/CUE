@@ -6,10 +6,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -38,7 +41,7 @@ import okio.Buffer;
 /**
  * Created by wersm_000 on 3/18/2015.
  */
-public class MainScreenActivity extends Activity{
+public class MainScreenActivity extends ActionBarActivity  {
 
     private final OkHttpClient client = new OkHttpClient();
     public static final MediaType MEDIA_TYPE_JSON
@@ -46,7 +49,13 @@ public class MainScreenActivity extends Activity{
     public static final String TAG = LoginActivity.class.getSimpleName();
     public String json;
     private String mJSONString;
+
+    //Sets the button variables
     private ImageView refreshButton;
+    private ImageView editStove;
+    private ImageView editTV;
+
+    //Sets notificaiton warning variables
     private int notificationID;
     private PendingIntent applianceWarningPendingIntent;
 
@@ -61,12 +70,16 @@ public class MainScreenActivity extends Activity{
         System.out.println("Main Screen:  " + userData.getUsername() + userData.getPassword());
 
         //Retrieves a PendingIntent that will perform a broadcast to the Alarm Receiver
-        Intent applianceWarningIntent = new Intent (MainScreenActivity.this, AlarmReceiver.class);
+        final Intent applianceWarningIntent = new Intent (MainScreenActivity.this, AlarmReceiver.class);
         applianceWarningIntent.putExtra("userData",userData);
-        applianceWarningPendingIntent = PendingIntent.getBroadcast(MainScreenActivity.this,0,applianceWarningIntent, 0);
+        applianceWarningIntent.putExtra("username", userData.getUsername());
+        applianceWarningIntent.putExtra("password", userData.getPassword());
+
 
         //sets refresh image and will be used onClick
         refreshButton = (ImageView) findViewById(R.id.refresh);
+        editStove = (ImageView) findViewById(R.id.editStoveIcon);
+        editTV = (ImageView) findViewById(R.id.editTVIcon);
 
         //Starts a thread to pull in an object
         try {
@@ -83,6 +96,7 @@ public class MainScreenActivity extends Activity{
                 try{
                     //phoneNotification();
                     int x = 3;
+                    startAlarm(applianceWarningIntent);
                 } catch (Exception e) {
                     Log.e(TAG, "Problem with the phone notification: ", e);
                 }
@@ -92,8 +106,19 @@ public class MainScreenActivity extends Activity{
             }
         });
 
-    }
+        editStove.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v ) {
+                showEditTimeDialog(11, "Stove", userData);
+            }
+        });
 
+        editTV.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v ) {
+                showEditTimeDialog(12, "TV", userData);
+            }
+        });
+
+    }
 
 
     public void getHttpData(String username, String password, String apiEndPoint, String parseType) throws Exception{
@@ -103,7 +128,6 @@ public class MainScreenActivity extends Activity{
         final String parsingType = parseType;
         String credential = Credentials.basic(username, password);
         String mAPIEndPoint = "http://connectedupdate.herokuapp.com" + apiEndPoint;
-
 
         Request request = new Request.Builder()
                 .header("Authorization", credential)
@@ -291,10 +315,10 @@ public class MainScreenActivity extends Activity{
 
 
         //Builds a JSON String for the request
-        String jsonPost = "{'inputID':11,"
-                +"timeLapseAlarm':50,"
-                +"'applianceName':'Stove'"
-                +"'homeID':1}";
+        //String jsonPost = "{'inputID':11,"
+        //        +"timeLapseAlarm':50,"
+        //        +"'applianceName':'Stove'"
+        //        +"'homeID':1}";
 
         RequestBody newBody = RequestBody.create(MEDIA_TYPE_JSON, json.toString());
         System.out.println("Put Call New Body:  "+ newBody.toString());
@@ -345,13 +369,25 @@ public class MainScreenActivity extends Activity{
             getHttpData(userData.getUsername(), userData.getPassword(), "/get_current_appliances/", "appliance");
             getHttpData(userData.getUsername(), userData.getPassword(), "/home_information_list/1","home");
             //startAlarm();
-            updateApplianceTimeLapse(userData.getUsername(), userData.getPassword(), "/appliance_timelapse/");
-
+            //updateApplianceTimeLapse(userData.getUsername(), userData.getPassword(), "/appliance_timelapse/");
+            //showEditTimeDialog(11, "Stove");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+    private void showEditTimeDialog(int applianceId, String applianceName, UserDataModel userdata){
+        // used to show an edit timelapse dialog box
+        FragmentManager fm = getSupportFragmentManager();
+        TimeLapseAlarmUpdateDialog editTimeDialog = TimeLapseAlarmUpdateDialog.newInstance("Some Title", applianceId, applianceName);
+        editTimeDialog.show(fm, "timelapse_alert_dialog");
+
+        refresh(userdata);
+    }
+
+
+
 
     public void wearableNotification(UserDataModel userData){
         //---------------------------------------
@@ -384,7 +420,7 @@ public class MainScreenActivity extends Activity{
         // Create a NotificationCompat.Builder to build a standard notification
         // then extend it with the WearableExtender
         Notification notif = new NotificationCompat.Builder(this)
-                //.setPriority(1)
+                .setPriority(1)
                 .setContentTitle(getString(R.string.warning_title))
                 .setContentText("The stove is unattended.")
                 .setSmallIcon(R.mipmap.alert)
@@ -426,12 +462,12 @@ public class MainScreenActivity extends Activity{
 
     }
 
-    public void startAlarm() {
+    public void startAlarm(Intent applianceWarningIntent) {
         //cancels existing alarms
         cancelAlarm();
 
         //determines future alarms
-
+        applianceWarningPendingIntent = PendingIntent.getBroadcast(MainScreenActivity.this,0,applianceWarningIntent, 0);
 
         //Sets new alarm
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);

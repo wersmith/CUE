@@ -9,16 +9,25 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="How much time do you want to wait for?"
-        android:id="@+id/textView" />
+        android:id="@+id/textTimeLapseQuestion" />
 
     <EditText
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:inputType="number"
         android:id="@+id/applianceTimeLapseInput"
         android:padding="10dp"
         />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save Time"
+        android:id="@+id/update_timelapse"
+        android:layout_gravity="right"/>
 
 </LinearLayout>

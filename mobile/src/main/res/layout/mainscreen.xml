@@ -99,4 +99,28 @@
         android:maxHeight="100dp"
         android:id="@+id/new_appliance" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/edit_icon"
+        android:maxWidth="20dp"
+        android:maxHeight="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/editStoveIcon"
+        android:layout_alignBottom="@+id/appliance_1"
+        android:layout_alignRight="@+id/appliance_1"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/edit_icon"
+        android:maxWidth="20dp"
+        android:maxHeight="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/editTVIcon"
+        android:layout_alignBottom="@+id/appliance_2"
+        android:layout_alignRight="@+id/appliance_2"/>
+
 </RelativeLayout>
