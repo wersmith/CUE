@@ -34,7 +34,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okio.Buffer;
 
@@ -58,6 +63,10 @@ public class MainScreenActivity extends ActionBarActivity  {
     //Sets notificaiton warning variables
     private int notificationID;
     private PendingIntent applianceWarningPendingIntent;
+
+    //sets timer to refresh
+    private Timer myTimer;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,13 +99,25 @@ public class MainScreenActivity extends ActionBarActivity  {
             e.printStackTrace();
         }
 
+        //refresh timer
+        myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                refresh(userData);
+            }
+        }, 0, 30000);
+
+        //onclicklistener for refreshbutton
         refreshButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v ) {
                 refresh(userData);
                 try{
                     //phoneNotification();
                     int x = 3;
-                    startAlarm(applianceWarningIntent);
+                    //startAlarm(applianceWarningIntent);
+                    cancelAlarm();
+
                 } catch (Exception e) {
                     Log.e(TAG, "Problem with the phone notification: ", e);
                 }
@@ -108,20 +129,20 @@ public class MainScreenActivity extends ActionBarActivity  {
 
         editStove.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v ) {
-                showEditTimeDialog(11, "Stove", userData);
+                showEditTimeDialog(12, "TV", userData);
             }
         });
 
         editTV.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v ) {
-                showEditTimeDialog(12, "TV", userData);
+                showEditTimeDialog(11, "Stove", userData);
             }
         });
 
     }
 
 
-    public void getHttpData(String username, String password, String apiEndPoint, String parseType) throws Exception{
+    public void getHttpData(final UserDataModel userData, String username, String password, String apiEndPoint, String parseType) throws Exception{
         final TextView addressText = (TextView) findViewById(R.id.addressTextDisplay);
         final TextView appliance1 = (TextView) findViewById(R.id.appliance_1);
         final TextView appliance2 = (TextView) findViewById(R.id.appliance_2);
@@ -154,7 +175,7 @@ public class MainScreenActivity extends ActionBarActivity  {
                 System.out.println("Response:  " + json);
 
                 try {
-                    if(parsingType.equals("home")){setHomeInfo(json, addressText);}else if(parsingType.equals("appliance")){setApplianceInfo(json, appliance1,appliance2);}
+                    if(parsingType.equals("home")){setHomeInfo(json, addressText);}else if(parsingType.equals("appliance")){setApplianceInfo(json, appliance1,appliance2,userData);}
 
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -183,7 +204,7 @@ public class MainScreenActivity extends ActionBarActivity  {
         });
     }
 
-    public void setApplianceInfo(String jsonString, final TextView appliance1, final TextView appliance2) throws Exception{
+    public void setApplianceInfo(String jsonString, final TextView appliance1, final TextView appliance2, final UserDataModel userData) throws Exception{
         JSONArray applianceInfo = new JSONArray(jsonString);
 
         //creates an empty array for individual appliance data
@@ -198,7 +219,7 @@ public class MainScreenActivity extends ActionBarActivity  {
 
             System.out.println(aIterator + ": " +appliance.getSessionID());
             appliance.setApplianceTime(iteratorJSONObject.getString("applianceTime"));
-            appliance.setApplianceState(iteratorJSONObject.getString("applianceState"));
+            appliance.setApplianceState(iteratorJSONObject.getInt("applianceState"));
 
             JSONObject nestedApplianceName = new JSONObject(iteratorJSONObject.getString("applianceName"));
             appliance.setApplianceName(nestedApplianceName.getString("applianceName"));
@@ -219,7 +240,18 @@ public class MainScreenActivity extends ActionBarActivity  {
         for (int object=0; object < applianceArray.size(); object++){
             //Sets the state of the object from an INT to On or Off text.
             final String stateText;
-            if (applianceArray.get(object).getApplianceState().equals("1")){stateText="ON";}else {stateText="OFF";};
+            if (applianceArray.get(object).getApplianceState() == 1){
+                stateText="ON";
+            } else {
+                if (applianceArray.get(object).getApplianceState() == 2) {
+                    stateText = "ON";
+                    try{wearableNotification(userData);} catch (Exception e){
+                        Log.e(TAG, "Problem with the watch notification: ", e);
+                    }
+                } else {
+                    stateText = "OFF";
+                }
+            };
 
             final String printObject = "Appliance: "
                     + applianceArray.get(object).getApplianceName()
@@ -234,11 +266,15 @@ public class MainScreenActivity extends ActionBarActivity  {
             System.out.println(printObject);
 
             final int backgroundObjectColor;
+            backgroundObjectColor = applianceArray.get(object).getBgColor();
+
+            /*
             if(applianceArray.get(object).getApplianceTimeLapse().equals("20")){
                 backgroundObjectColor = 0xFFFB020B;
             }else{
                 backgroundObjectColor = 0xFF02A5C2;
-            }
+            } */
+
 
             if (object==0){
 
@@ -269,9 +305,8 @@ public class MainScreenActivity extends ActionBarActivity  {
         // String state = homeInfo.getString("homeState");
 
         //final String concatAddress = address + "\n" + city + ", " + state + " " + zip;
-        System.out.println("In Appliance Method");
-        System.out.println(applianceInfo);
-
+        //System.out.println("In Appliance Method");
+        //System.out.println(applianceInfo);
 
         //Sets Address UI Information
         //runOnUiThread(new Runnable() {
@@ -285,6 +320,9 @@ public class MainScreenActivity extends ActionBarActivity  {
 
     }
 
+
+
+    //written here used in TimeLapseAlarmUpdateDialog
     public void updateApplianceTimeLapse(String username, String password, String apiEndPoint){
 
         //Sets the Request Body string type
@@ -350,7 +388,7 @@ public class MainScreenActivity extends ActionBarActivity  {
         Response response = null;
         try {
             response = client.newCall(request).execute();
-            System.out.println("Put Call Response:  "+response.body().string());
+            //System.out.println("Put Call Response:  "+response.body().string());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -366,8 +404,8 @@ public class MainScreenActivity extends ActionBarActivity  {
     public void refresh(UserDataModel userData){
         //Starts a thread to pull in an object
         try {
-            getHttpData(userData.getUsername(), userData.getPassword(), "/get_current_appliances/", "appliance");
-            getHttpData(userData.getUsername(), userData.getPassword(), "/home_information_list/1","home");
+            getHttpData(userData, userData.getUsername(), userData.getPassword(), "/get_current_appliances/", "appliance");
+            getHttpData(userData, userData.getUsername(), userData.getPassword(), "/home_information_list/1","home");
             //startAlarm();
             //updateApplianceTimeLapse(userData.getUsername(), userData.getPassword(), "/appliance_timelapse/");
             //showEditTimeDialog(11, "Stove");
@@ -481,10 +519,69 @@ public class MainScreenActivity extends ActionBarActivity  {
     public void cancelAlarm(){
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         manager.cancel(applianceWarningPendingIntent);
-        Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Alarm Canceled", Toast.LENGTH_SHORT).show();
 
     }
 
+
+    //Written and used on the backend to update the database.
+    //Can be used when adding a new appliance.
+    public void httpPostToCurrentAppliances(){
+
+        String mAPIEndPoint = "http://connectedupdate.herokuapp.com/post_current_appliances/";
+
+        //sets login parameter
+        String credential = Credentials.basic("wersmith", "ReggieMiller31!");
+
+
+        System.out.println("Put Call, mAPIEndPoint:  " + mAPIEndPoint);
+
+
+        // Use to test and see what a JSON Object for a put should look like
+        // Create a JSONObject
+        JSONObject json = new JSONObject();
+
+
+        // Add fields to json object for POST
+        try {
+            json.put("applianceName", 11);
+            //json.put("applianceTime", "2015-04-08T14:58:14Z");
+            json.put("applianceState",1);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody newBody = RequestBody.create(MEDIA_TYPE_JSON, json.toString());
+        System.out.println("POST Call New Body:  "+ newBody.toString());
+
+        // builds POST request
+        Request request = new Request.Builder()
+                .header("Authorization", credential)
+                .url(mAPIEndPoint)
+                .post(newBody)
+                .build();
+        System.out.println("POST   Call Request String:  "+ request.body().toString());
+
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+            System.out.println("POST Call Response:  "+response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (!response.isSuccessful()) try {
+            throw new IOException("Unexpected code " + response);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+
+    }
 }
+
+
 
 

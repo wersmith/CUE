@@ -26,7 +26,13 @@ public class AlarmReceiver extends BroadcastReceiver{
 
         System.out.println("Broadcast received" + username + password);
 
+        //Creates intent to take the user to the main screen
+        Intent mainActivityIntent = new Intent(context, MainScreenActivity.class);
 
+        //Sends object to MainScreenActivity
+        mainActivityIntent.putExtra("UserModel", userData);
+        mainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(mainActivityIntent);
 
 
         //When the alarm goes off, here is the a message gets posted to the

@@ -1,5 +1,7 @@
 package com.herokuapp.connectedupdate.appliancewatch;
 
+import android.graphics.Color;
+
 import java.util.Calendar;
 
 /**
@@ -12,7 +14,7 @@ public class CurrentApplianceDataModel {
     private String mApplianceName;
     private String mApplianceTimeLapse;
     private String mApplianceTime;
-    private String mApplianceState;
+    private int mApplianceState;
     private int mInputId;
 
     public int getInputId() {
@@ -31,11 +33,11 @@ public class CurrentApplianceDataModel {
         mApplianceTime = applianceStartTime;
     }
 
-    public String getApplianceState() {
+    public int getApplianceState() {
         return mApplianceState;
     }
 
-    public void setApplianceState(String applianceEndTime) {
+    public void setApplianceState(int applianceEndTime) {
         mApplianceState = applianceEndTime;
     }
 
@@ -79,5 +81,19 @@ public class CurrentApplianceDataModel {
         mApplianceTimeLapse = applianceTimeLapse;
     }
 
+    public int getBgColor(){
+        int mRedColor = 0xFFFB020B;
+        int mYellowColor = 0xFFD3C729;
+        int mBlueColor = 0xFF02A5C2;
+
+        if (mApplianceState == 0){
+            return mBlueColor;
+        } if (mApplianceState == 1){
+            return mYellowColor;
+        } else {
+            return mRedColor;
+        }
+
+    }
 
 }

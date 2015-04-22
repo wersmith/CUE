@@ -86,7 +86,7 @@
         android:padding="10dp"
         android:textStyle="bold"
         android:text="Loading..."/>
-
+<!--
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -98,7 +98,7 @@
         android:maxWidth="100dp"
         android:maxHeight="100dp"
         android:id="@+id/new_appliance" />
-
+-->
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
