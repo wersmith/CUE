@@ -2,7 +2,11 @@ package com.herokuapp.connectedupdate.appliancewatch;
 
 import android.graphics.Color;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Created by wersm_000 on 3/26/2015.
@@ -95,5 +99,85 @@ public class CurrentApplianceDataModel {
         }
 
     }
+
+    public int getTimeToAlarm() {
+        int timeDiffInt = 500;
+
+        String format = "yyyy-MM-dd'T'HH:mm:ss";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        String newTime = mApplianceTime.substring(0, mApplianceTime.length()-5);
+                //+"-"+mApplianceTime.substring(mApplianceTime.length()-5);
+
+
+        System.out.println("New Time String UTC: " + newTime);
+
+
+
+
+        try {
+            Date applianceOnUnattendedTime = simpleDateFormat.parse(newTime);
+            System.out.println("Current Appliance Time (UTC):  " + applianceOnUnattendedTime);
+
+            SimpleDateFormat newTimeZoneTime = new SimpleDateFormat(format);
+            newTimeZoneTime.setTimeZone(TimeZone.getTimeZone("America/Atlanta"));
+
+            String convertedTimeZoneTime = newTimeZoneTime.format(applianceOnUnattendedTime);
+            Date applianceOnUnattendedTimeEastern = simpleDateFormat.parse(convertedTimeZoneTime);
+            System.out.println("Current Appliance Time (Eastern):  " + applianceOnUnattendedTimeEastern);
+
+            Calendar timeCal = Calendar.getInstance();
+            timeCal.setTime(applianceOnUnattendedTimeEastern);
+            timeCal.add(Calendar.MINUTE, Integer.parseInt(mApplianceTimeLapse));
+            System.out.println("Current Appliance Time (Eastern) + " + mApplianceTimeLapse
+                    + ":  " + timeCal.getTime());
+
+            Calendar currentTimeCal = Calendar.getInstance();
+            System.out.println("Current Device Time:  " + currentTimeCal.getTime());
+
+
+            String currentTimeCalString;
+            int year = currentTimeCal.get(Calendar.YEAR);
+            int month = currentTimeCal.get(Calendar.MONTH);
+            int day = currentTimeCal.get(Calendar.DAY_OF_MONTH);
+            int hour = currentTimeCal.get(Calendar.HOUR_OF_DAY);
+            int minute = currentTimeCal.get(Calendar.MINUTE);
+            currentTimeCalString = String.valueOf(year)+ String.valueOf(month)+String.valueOf(day);
+
+            String applianceOnUnattendedTimeString;
+            int aYear = timeCal.get(Calendar.YEAR);
+            int aMonth = timeCal.get(Calendar.MONTH);
+            int aDay = timeCal.get(Calendar.DAY_OF_MONTH);
+            int aHour = timeCal.get(Calendar.HOUR_OF_DAY);
+            int aMinute = timeCal.get(Calendar.MINUTE);
+            applianceOnUnattendedTimeString = String.valueOf(aYear)+ String.valueOf(aMonth)+String.valueOf(aDay);
+
+            if (currentTimeCalString.equals(applianceOnUnattendedTimeString)){
+                if (hour==aHour){
+                    timeDiffInt = aMinute - minute;
+                    System.out.println(mApplianceName + "timeDiffInt 1: " + timeDiffInt);
+
+                } else {
+                    timeDiffInt = (60 - aMinute) + minute;
+                    System.out.println(mApplianceName + "timeDiffInt 2: " + timeDiffInt);
+                }
+
+            } else {
+                timeDiffInt = 0;
+                System.out.println(mApplianceName + "timeDiffInt 3: " + timeDiffInt);
+            }
+
+        } catch (ParseException e) {
+            System.out.println(mApplianceName + "Current Appliance Time Error:  " + e);
+        }
+
+        if (timeDiffInt >= Integer.parseInt(mApplianceTimeLapse)){
+            return 0;
+        } else {
+            return Integer.parseInt(mApplianceTimeLapse) - timeDiffInt;
+        }
+
+    };
 
 }

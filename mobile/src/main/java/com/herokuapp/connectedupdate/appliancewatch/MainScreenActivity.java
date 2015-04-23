@@ -85,7 +85,7 @@ public class MainScreenActivity extends ActionBarActivity  {
         applianceWarningIntent.putExtra("password", userData.getPassword());
 
 
-        //sets refresh image and will be used onClick
+        //sets images as buttons and will be used onClick
         refreshButton = (ImageView) findViewById(R.id.refresh);
         editStove = (ImageView) findViewById(R.id.editStoveIcon);
         editTV = (ImageView) findViewById(R.id.editTVIcon);
@@ -99,14 +99,6 @@ public class MainScreenActivity extends ActionBarActivity  {
             e.printStackTrace();
         }
 
-        //refresh timer
-        myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                refresh(userData);
-            }
-        }, 0, 30000);
 
         //onclicklistener for refreshbutton
         refreshButton.setOnClickListener(new View.OnClickListener() {
@@ -116,26 +108,23 @@ public class MainScreenActivity extends ActionBarActivity  {
                     //phoneNotification();
                     int x = 3;
                     //startAlarm(applianceWarningIntent);
-                    cancelAlarm();
+                    //cancelAlarm();
 
-                } catch (Exception e) {
-                    Log.e(TAG, "Problem with the phone notification: ", e);
-                }
-                try{wearableNotification(userData);} catch (Exception e){
-                    Log.e(TAG, "Problem with the watch notification: ", e);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Problem with the phone notification: ", e);
                 }
             }
         });
 
         editStove.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v ) {
-                showEditTimeDialog(12, "TV", userData);
+                showEditTimeDialog(11, "Stove", userData);
             }
         });
 
         editTV.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v ) {
-                showEditTimeDialog(11, "Stove", userData);
+                showEditTimeDialog(12, "TV", userData);
             }
         });
 
@@ -245,7 +234,7 @@ public class MainScreenActivity extends ActionBarActivity  {
             } else {
                 if (applianceArray.get(object).getApplianceState() == 2) {
                     stateText = "ON";
-                    try{wearableNotification(userData);} catch (Exception e){
+                    try{wearableNotification(userData, applianceArray.get(object).getApplianceName());} catch (Exception e){
                         Log.e(TAG, "Problem with the watch notification: ", e);
                     }
                 } else {
@@ -267,6 +256,41 @@ public class MainScreenActivity extends ActionBarActivity  {
 
             final int backgroundObjectColor;
             backgroundObjectColor = applianceArray.get(object).getBgColor();
+
+            final int timeAlarm = applianceArray.get(object).getTimeToAlarm();
+            System.out.println(applianceArray.get(object).getApplianceName() + " TimeAlarm:  " + timeAlarm);
+
+
+            //refresh timer
+            int timerNumber = timeAlarm*60*1000;
+
+            try {
+                if (timerNumber > 0) {
+                    myTimer = new Timer();
+                    myTimer.schedule(new TimerTask() {
+
+                        //sets an alarm for the time to refresh
+                        @Override
+                        public void run() {
+                            refresh(userData);
+                        }
+                    }, 0, timerNumber);
+                } else{
+                    myTimer = new Timer();
+                    timerNumber = Integer.parseInt(applianceArray.get(object).getApplianceName());
+                    myTimer.schedule(new TimerTask() {
+
+                        //sets an alarm for the time to refresh
+                        @Override
+                        public void run() {
+                            refresh(userData);
+                        }
+                    }, 0, timerNumber);
+
+                }
+            } catch (Exception e){
+                System.out.println("Time Alarm is past due");
+            }
 
             /*
             if(applianceArray.get(object).getApplianceTimeLapse().equals("20")){
@@ -322,8 +346,8 @@ public class MainScreenActivity extends ActionBarActivity  {
 
 
 
-    //written here used in TimeLapseAlarmUpdateDialog
-    public void updateApplianceTimeLapse(String username, String password, String apiEndPoint){
+    //was originally written here used in TimeLapseAlarmUpdateDialog
+    /*public void updateApplianceTimeLapse(String username, String password, String apiEndPoint){
 
         //Sets the Request Body string type
 
@@ -351,13 +375,6 @@ public class MainScreenActivity extends ActionBarActivity  {
             e.printStackTrace();
         }
 
-
-        //Builds a JSON String for the request
-        //String jsonPost = "{'inputID':11,"
-        //        +"timeLapseAlarm':50,"
-        //        +"'applianceName':'Stove'"
-        //        +"'homeID':1}";
-
         RequestBody newBody = RequestBody.create(MEDIA_TYPE_JSON, json.toString());
         System.out.println("Put Call New Body:  "+ newBody.toString());
 
@@ -371,6 +388,9 @@ public class MainScreenActivity extends ActionBarActivity  {
 
 
 /**
+        //used to thread the call in the background.
+        //deactivated due to other issues.
+        //if time permits, will add this back in
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Request request, IOException e) {
@@ -384,7 +404,7 @@ public class MainScreenActivity extends ActionBarActivity  {
 
         });
  */
-
+/*
         Response response = null;
         try {
             response = client.newCall(request).execute();
@@ -399,7 +419,7 @@ public class MainScreenActivity extends ActionBarActivity  {
         }
 
     }
-
+*/
 
     public void refresh(UserDataModel userData){
         //Starts a thread to pull in an object
@@ -424,10 +444,7 @@ public class MainScreenActivity extends ActionBarActivity  {
         refresh(userdata);
     }
 
-
-
-
-    public void wearableNotification(UserDataModel userData){
+    public void wearableNotification(UserDataModel userData, String appliance){
         //---------------------------------------
         int notificationId = 001;
         //Sets a notification action to go to the dashboard and view more detail
@@ -453,14 +470,12 @@ public class MainScreenActivity extends ActionBarActivity  {
                         .setContentIcon(R.mipmap.alert)
                         .setHintHideIcon(true);
 
-
-
         // Create a NotificationCompat.Builder to build a standard notification
         // then extend it with the WearableExtender
         Notification notif = new NotificationCompat.Builder(this)
                 .setPriority(1)
                 .setContentTitle(getString(R.string.warning_title))
-                .setContentText("The stove is unattended.")
+                .setContentText("The " +  appliance + " is unattended.")
                 .setSmallIcon(R.mipmap.alert)
                 .setAutoCancel(true)
                 .setVibrate(new long[] {1000})
@@ -526,7 +541,8 @@ public class MainScreenActivity extends ActionBarActivity  {
 
     //Written and used on the backend to update the database.
     //Can be used when adding a new appliance.
-    public void httpPostToCurrentAppliances(){
+    //did not implement here
+    /*public void httpPostToCurrentAppliances(){
 
         String mAPIEndPoint = "http://connectedupdate.herokuapp.com/post_current_appliances/";
 
@@ -575,11 +591,8 @@ public class MainScreenActivity extends ActionBarActivity  {
             e.printStackTrace();
         }
 
-
-
-
-
     }
+    */
 }
 
 
